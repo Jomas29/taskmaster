@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster - Task Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="auth-container">
+        <h1>TaskMaster</h1>
+        <div id="auth-forms">
+            <!-- Registration Form -->
+            <form id="register-form">
+                <h2>Register</h2>
+                <input type="text" id="register-username" placeholder="Username" required>
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Password" required>
+                <button type="submit">Register</button>
+            </form>
+
+            <h4><i>OR</i></h4>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <h2>Login</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="task-container" style="display: none;">
+        <h1>Welcome to TaskMaster</h1>
+        <button id="logout-button">Logout</button>
+        <div id="task-form-container">
+            <form id="task-form">
+                <input type="text" id="task-title" placeholder="Task Title" required>
+                <textarea id="task-desc" placeholder="Task Description"></textarea>
+                <input type="date" id="task-deadline" required>
+                <select id="task-priority">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+                <button type="submit">Add Task</button>
+            </form>
+        </div>
+        <div id="task-list"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
