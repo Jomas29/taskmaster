@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for capstone-ancient-water-5921 on 2024-11-29T03:54:52+01:00
+# fly.toml app configuration file generated for taskmaster-rough-sound-9673 on 2024-12-01T01:22:12+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'capstone-ancient-water-5921'
+app = 'taskmaster-rough-sound-9673'
 primary_region = 'cdg'
 
 [build]

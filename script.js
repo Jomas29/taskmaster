@@ -6,7 +6,7 @@ const priorityFilter = document.getElementById('priorityFilter');
 const token = localStorage.getItem('token');
 
 // API URL
-const apiUrl = "http://localhost:3000/api/tasks"; // Adjust if necessary
+const apiUrl = "https://taskmaster-rough-sound-9673.fly.dev/"; // Adjust if necessary
 
 // Fetch tasks from the server
 async function fetchTasks() {
