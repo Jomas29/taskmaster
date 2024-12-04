@@ -10,6 +10,17 @@ const logoutButton = document.getElementById('logout-button');
 // API URL
 const apiUrl = "https://taskmaster-rough-sound-9673.fly.dev"; // Adjust this to match your backend URL
 
+// Toggle auth UI visibility
+function toggleAuthUI(isLoggedIn) {
+  if (isLoggedIn) {
+    authContainer.style.display = 'none';
+    taskContainer.style.display = 'block';
+  } else {
+    authContainer.style.display = 'block';
+    taskContainer.style.display = 'none';
+  }
+}
+
 // Handle registration
 registerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -63,9 +74,7 @@ loginForm.addEventListener('submit', async (e) => {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(data.user));
 
-    authContainer.style.display = 'none';
-    taskContainer.style.display = 'block';
-
+    toggleAuthUI(true); // Switch UI after login
     fetchTasks(); // Fetch tasks after login
   } catch (error) {
     console.error(error.message);
@@ -78,22 +87,18 @@ logoutButton.addEventListener('click', () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 
-  authContainer.style.display = 'block';
-  taskContainer.style.display = 'none';
+  toggleAuthUI(false); // Show auth UI after logout
 });
 
 // Fetch tasks from the server
 async function fetchTasks() {
   const token = localStorage.getItem('token');
-
-  if (!token) {
-    return;
-  }
+  if (!token) return; // No token found, do nothing
 
   try {
     const response = await fetch(`${apiUrl}/api/tasks`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`, // Send token in header
       },
     });
 
@@ -181,12 +186,16 @@ async function deleteTask(taskId) {
   }
 }
 
-// Initial check for authentication
-if (localStorage.getItem('token')) {
-  authContainer.style.display = 'none';
-  taskContainer.style.display = 'block';
-  fetchTasks(); // Fetch tasks if already logged in
-} else {
-  authContainer.style.display = 'block';
-  taskContainer.style.display = 'none';
+// Initial check for authentication and UI setup
+function initializeApp() {
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token; // If token exists, user is logged in
+
+  toggleAuthUI(isLoggedIn);
+  if (isLoggedIn) {
+    fetchTasks(); // Fetch tasks if logged in
+  }
 }
+
+// Initialize on page load
+initializeApp();
