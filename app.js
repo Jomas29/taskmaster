@@ -28,3 +28,10 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+require('dotenv').config();
+
+// Access the token like this:
+const flyApiToken = process.env.FLY_API_TOKEN;
+
+console.log("Fly.io API Token:", flyApiToken); // Test to ensure it's loaded correctly (remove in production)
