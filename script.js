@@ -70,6 +70,13 @@ loginForm.addEventListener('submit', async (e) => {
     const data = await response.json();
     const token = data.token;
 
+     // Debugging: Check if the token exists
+    console.log('Login successful, token:', token);
+
+    if (!token) {
+      throw new Error('No token received from the server');
+    }
+
     // Save token to localStorage
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(data.user));
