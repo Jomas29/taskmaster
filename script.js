@@ -1,19 +1,99 @@
-const taskList = document.getElementById('tasks');
-const addTaskForm = document.getElementById('addTaskForm');
-const priorityFilter = document.getElementById('priorityFilter');
-
-// Get the token from localStorage (assuming it's stored after login)
-const token = localStorage.getItem('token');
+const taskList = document.getElementById('task-list');
+const addTaskForm = document.getElementById('task-form');
+const priorityFilter = document.getElementById('task-priority');
+const registerForm = document.getElementById('register-form');
+const loginForm = document.getElementById('login-form');
+const authContainer = document.getElementById('auth-container');
+const taskContainer = document.getElementById('task-container');
+const logoutButton = document.getElementById('logout-button');
 
 // API URL
-const apiUrl = "https://taskmaster-rough-sound-9673.fly.dev/"; // Adjust if necessary
+const apiUrl = "https://taskmaster-rough-sound-9673.fly.dev"; // Adjust this to match your backend URL
+
+// Handle registration
+registerForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('register-username').value;
+  const email = document.getElementById('register-email').value;
+  const password = document.getElementById('register-password').value;
+
+  try {
+    const response = await fetch(`${apiUrl}/api/users/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, email, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to register');
+    }
+
+    alert('Registration successful! You can now log in.');
+  } catch (error) {
+    console.error(error.message);
+    alert('Registration failed. Please try again.');
+  }
+});
+
+// Handle login
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  const password = document.getElementById('login-password').value;
+
+  try {
+    const response = await fetch(`${apiUrl}/api/users/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to login');
+    }
+
+    const data = await response.json();
+    const token = data.token;
+
+    // Save token to localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    authContainer.style.display = 'none';
+    taskContainer.style.display = 'block';
+
+    fetchTasks(); // Fetch tasks after login
+  } catch (error) {
+    console.error(error.message);
+    alert('Login failed. Please check your credentials and try again.');
+  }
+});
+
+// Handle logout
+logoutButton.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+
+  authContainer.style.display = 'block';
+  taskContainer.style.display = 'none';
+});
 
 // Fetch tasks from the server
 async function fetchTasks() {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    return;
+  }
+
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`${apiUrl}/api/tasks`, {
       headers: {
-        'Authorization': `Bearer ${token}`, // Send token in the Authorization header
+        'Authorization': `Bearer ${token}`,
       },
     });
 
@@ -41,7 +121,7 @@ function renderTasks(tasks) {
         <p>Priority: ${task.priority}</p>
         <p>Deadline: ${new Date(task.deadline).toLocaleDateString()}</p>
       </div>
-      <button onclick="deleteTask('${task._id}')">Delete</button> <!-- Ensure _id field -->
+      <button onclick="deleteTask('${task._id}')">Delete</button>
     `;
     taskList.appendChild(taskItem);
   });
@@ -50,19 +130,20 @@ function renderTasks(tasks) {
 // Add a new task
 addTaskForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  const token = localStorage.getItem('token');
   const task = {
-    title: document.getElementById('title').value,
-    description: document.getElementById('description').value,
-    deadline: document.getElementById('deadline').value,
-    priority: document.getElementById('priority').value,
+    title: document.getElementById('task-title').value,
+    description: document.getElementById('task-desc').value,
+    deadline: document.getElementById('task-deadline').value,
+    priority: document.getElementById('task-priority').value,
   };
 
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`${apiUrl}/api/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, // Send token in the Authorization header
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify(task),
     });
@@ -80,11 +161,13 @@ addTaskForm.addEventListener('submit', async (e) => {
 
 // Delete a task
 async function deleteTask(taskId) {
+  const token = localStorage.getItem('token');
+
   try {
-    const response = await fetch(`${apiUrl}/${taskId}`, {
+    const response = await fetch(`${apiUrl}/api/tasks/${taskId}`, {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`, // Send token in the Authorization header
+        'Authorization': `Bearer ${token}`,
       },
     });
 
@@ -98,26 +181,12 @@ async function deleteTask(taskId) {
   }
 }
 
-// Filter tasks by priority
-priorityFilter.addEventListener('change', async () => {
-  const priority = priorityFilter.value;
-  try {
-    const response = await fetch(apiUrl + (priority === 'all' ? '' : `?priority=${priority}`), {
-      headers: {
-        'Authorization': `Bearer ${token}`, // Send token in the Authorization header
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to filter tasks');
-    }
-
-    const filteredTasks = await response.json();
-    renderTasks(filteredTasks);
-  } catch (error) {
-    console.error(error.message);
-  }
-});
-
-// Initial fetch of tasks
-fetchTasks();
+// Initial check for authentication
+if (localStorage.getItem('token')) {
+  authContainer.style.display = 'none';
+  taskContainer.style.display = 'block';
+  fetchTasks(); // Fetch tasks if already logged in
+} else {
+  authContainer.style.display = 'block';
+  taskContainer.style.display = 'none';
+}
